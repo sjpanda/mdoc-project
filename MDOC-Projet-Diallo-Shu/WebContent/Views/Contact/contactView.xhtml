@@ -5,7 +5,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
-	
+
 <f:metadata>
 	<f:event listener="#{contactController.init}" type="preRenderView" />
 </f:metadata>
@@ -25,46 +25,57 @@
 		<ui:define name="content">
 			<f:view>
 				<f:loadBundle basename="properties.messagesContact" var="msg" />
+				<h:panelGroup rendered="#{contactController.action eq 'update'}">
+					<ul class="pager">
+						<li class="previous"><h:outputLink
+								value="listContactView.xhtml">
+								<h:outputText value="&larr; Back contact list" />
+								<f:param name="action" value="update" />
+							</h:outputLink></li>
+					</ul>
+				</h:panelGroup>
 				<h:form styleClass="form-horizontal">
-                    <div class="control-group">
-                        <h:outputLabel value="#{msg.sn}" styleClass="control-label" />
-                        <div class="controls">
-                            <h:inputText value="#{contactController.numSiret}" >
-                            	<f:validateRegex pattern="[0-9]*" />
-                                <f:param name="type" value="number"/>
-                            </h:inputText>
-                        </div>
-                    </div>
+					<div class="control-group">
+						<h:outputLabel value="#{msg.sn}" styleClass="control-label" />
+						<div class="controls">
+							<h:inputText value="#{contactController.numSiret}">
+								<f:validateRegex pattern="[0-9]*" />
+								<f:param name="type" value="number" />
+							</h:inputText>
+						</div>
+					</div>
 					<div class="control-group">
 						<h:outputLabel value="#{msg.firstName}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputText id="firstname" value="#{contactController.contact.firstname}"/>
+							<h:inputText id="firstname"
+								value="#{contactController.contact.firstname}" />
 						</div>
 					</div>
 					<div class="control-group">
 						<h:outputLabel value="#{msg.lastName}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputText value="#{contactController.contact.lastname}"/>
+							<h:inputText value="#{contactController.contact.lastname}" />
 						</div>
 					</div>
 					<div class="control-group">
 						<h:outputLabel value="#{msg.email}" styleClass="control-label" />
 						<div class="controls">
 							<h:inputText value="#{contactController.contact.email}">
-								<f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+								<f:validateRegex
+									pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
 							</h:inputText>
 						</div>
 					</div>
 					<div class="control-group">
 						<h:outputLabel value="#{msg.street}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputText value="#{contactController.contact.address.street}"/>
+							<h:inputText value="#{contactController.contact.address.street}" />
 						</div>
 					</div>
 					<div class="control-group">
 						<h:outputLabel value="#{msg.zipCode}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputText value="#{contactController.contact.address.zip}"/>
+							<h:inputText value="#{contactController.contact.address.zip}" />
 						</div>
 					</div>
 					<div class="control-group">
@@ -76,11 +87,11 @@
 					<div class="control-group">
 						<h:outputLabel value="#{msg.country}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputText value="#{contactController.contact.address.country}"/>
+							<h:inputText value="#{contactController.contact.address.country}" />
 						</div>
 					</div>
 					<div class="control-group">
-						<h:outputLabel value="#{msg.phoneHome}" styleClass="control-label"/>
+						<h:outputLabel value="#{msg.phoneHome}" styleClass="control-label" />
 						<div class="controls">
 							<h:inputText value="#{contactController.homePhone}" />
 						</div>
@@ -96,21 +107,24 @@
 						<h:outputLabel value="#{msg.phoneMobile}"
 							styleClass="control-label" />
 						<div class="controls">
-							<h:inputText value="#{contactController.mobilePhone}"/>
+							<h:inputText value="#{contactController.mobilePhone}" />
 						</div>
 					</div>
 					<div class="control-group">
 						<div class="controls">
-							<h:commandButton action="#{contactController.save}"
-								value="#{msg.save}" styleClass="btn btn-primary"
-								rendered="#{contactController.action eq 'create'}" />
-							<h:commandButton action="#{contactController.save}"
-								value="#{msg.update}" styleClass="btn btn-primary"
-								rendered="#{contactController.action eq 'update'}" />
-							<h:commandButton action="#{contactController.search}"
-								value="#{msg.search}" styleClass="btn btn-primary"
-								rendered="#{contactController.action eq 'search'}" />
 							<button type="reset" class="btn">Reset</button>
+							<h:commandButton action="#{contactController.save}"
+								value="#{msg.save}" styleClass="btn btn-success"
+								rendered="#{contactController.action eq 'create'}"
+								style="margin-left: 20px;" />
+							<h:commandButton action="#{contactController.save}"
+								value="#{msg.update}" styleClass="btn btn-success"
+								rendered="#{contactController.action eq 'update'}"
+								style="margin-left: 20px;" />
+							<h:commandButton action="#{contactController.search}"
+								value="#{msg.search}" styleClass="btn btn-success"
+								rendered="#{contactController.action eq 'search'}"
+								style="margin-left: 20px;" />
 						</div>
 					</div>
 					<h:messages layout="table"></h:messages>

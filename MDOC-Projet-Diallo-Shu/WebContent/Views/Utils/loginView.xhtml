@@ -4,13 +4,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:f="http://java.sun.com/jsf/core">
 <h:body>
 
-<f:metadata>
-    <f:event listener="#{message.init}" type="preRenderView" />
-</f:metadata>
+	<f:metadata>
+		<f:event listener="#{message.init}" type="preRenderView" />
+	</f:metadata>
 
 	<ui:composition template="../../templates/commonLayout.xhtml">
 		<ui:define name="title">
@@ -28,23 +27,20 @@
 					<div class="control-group">
 						<h:outputLabel value="#{msg.user}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputText value="#{user.name}" p:placeholder="#{msg.user}" />
+							<h:inputText value="#{user.name}" />
 						</div>
 					</div>
 					<div class="control-group">
 						<h:outputLabel value="#{msg.password}" styleClass="control-label" />
 						<div class="controls">
-							<h:inputSecret value="#{user.password}"
-								p:placeholder="#{msg.password}" />
+							<h:inputSecret value="#{user.password}" />
 						</div>
 					</div>
 					<div class="control-group">
 						<div class="controls">
-							<label class="checkbox"> <input type="checkbox" />
-								Remember me
-							</label>
-							<h:commandButton action="#{user.login}" value="#{msg.login}"></h:commandButton>
 							<button type="reset" class="btn">Reset</button>
+							<h:commandButton action="#{user.login}" value="#{msg.login}"
+								styleClass="btn btn-success" style="margin-left: 20px;"></h:commandButton>
 						</div>
 					</div>
 					<h:messages layout="table"></h:messages>
