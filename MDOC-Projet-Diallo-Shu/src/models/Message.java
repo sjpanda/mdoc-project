@@ -21,7 +21,6 @@ public class Message {
 		description = "";
 		display = false;
 		error = false;
-		System.out.println("ohohohohohohoho");
 	}
 	
 	public String getTitle() {
