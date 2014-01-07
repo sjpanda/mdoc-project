@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/aop
+                     	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/mdocDB" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean id="mySessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="myDataSource" />
+		<property name="mappingResources">
+			<list>
+				<value>domain/impl/Contact.hbm.xml</value>
+				<value>domain/impl/Address.hbm.xml</value>
+				<value>domain/impl/PhoneNumber.hbm.xml</value>
+				<value>domain/impl/ContactGroup.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">create</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</prop>
+				<prop key="hibernate.generate_statistics">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+	<!-- <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate"> -->
+	<!-- <property name="transactionManager" ref="transactionManager"/> -->
+	<!-- </bean> -->
+
+	<bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="registrationBehavior" value="1"/>
+		<property name="beans">
+			<map>
+				<entry key="Hibernate:application=Statistics" value-ref="hibernateStatisticsBean" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="hibernateStatisticsBean" class="org.hibernate.jmx.StatisticsService">
+		<property name="statisticsEnabled" value="true" />
+		<property name="sessionFactory">
+			<!-- Uncomment the following when using Hibernate directly -->
+			<ref local="mySessionFactory" />
+
+			<!-- Uncomment the following when using Hibernate via JPA (Assuming the 
+				managed EMF is named 'entityManagerFactory'. Namespace is: xmlns:util="http://www.springframework.org/schema/util") -->
+			<!-- util:property-path path="entityManagerFactory.sessionFactory" / -->
+		</property>
+	</bean>
+
+	<tx:advice id="txAdvice">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" timeout="-1" />
+			<tx:method name="sav*" propagation="REQUIRED" />
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:advisor pointcut="execution(* dao.impl.*.*(..))" advice-ref="txAdvice" />
+		<aop:aspect id="ContactLoggerBean" ref="ContactLogger">
+			<aop:before
+				pointcut="execution(* dao.impl.DAOContact.createContact(String,String,*,*,*,*)) and args(firstname,lastname,*,*,*,*)"
+				method="log" arg-names="firstname,lastname"/>
+		</aop:aspect>
+	</aop:config>
+
+	<bean id="ContactLogger" class="aspect.ContactLogger"/>
+
+
+
+
+
+	<bean id="DAOContact" class="dao.impl.DAOContact" scope="singleton">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+	<bean id="DAOAddress" class="dao.impl.DAOAddress" scope="singleton">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+	<bean id="DAOContactGroup" class="dao.impl.DAOContactGroup" scope="singleton">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+	<bean id="DAOEntreprise" class="dao.impl.DAOEntreprise" scope="singleton">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+	<bean id="DAOPhoneNumber" class="dao.impl.DAOPhoneNumber" scope="singleton">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+
+
+
+
+
+	<bean id="Address" class="domain.impl.Address" scope="prototype">
+		<property name="street" value="" />
+		<property name="city" value="" />
+		<property name="zip" value="" />
+		<property name="country" value="" />
+	</bean>
+
+	<bean id="PhoneNumber" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="" />
+		<property name="phoneNumber" value="" />
+	</bean>
+
+	<bean id="ContactGroup" class="domain.impl.ContactGroup" scope="prototype">
+		<property name="contacts"><set></set></property>
+	</bean>
+
+	<bean id="ContactSetter" class="domain.impl.Contact" scope="prototype">
+		<property name="firstname" value="" />
+		<property name="lastname" value="" />
+		<property name="email" value="" />
+		<property name="address">
+			<ref bean="Address" />
+		</property>
+	</bean>
+
+	<bean id="ContactConstrNoArgs" class="domain.impl.Contact" scope="prototype"></bean>
+
+	<bean id="ContactConstrWithArgs" class="domain.impl.Contact" scope="prototype">
+		<constructor-arg type="long">
+			<value>0</value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value></value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value></value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value></value>
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="Address" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="Entreprise" parent="ContactSetter" class="domain.impl.Entreprise" scope="prototype">
+		<property name="numSiret" value="0" />
+	</bean>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<bean id="ContactExp1" class="domain.impl.Contact" scope="prototype">
+		<constructor-arg type="long">
+			<value>0</value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value>Clayton</value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value>Pettet</value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value>clayton.pettet@msn.com</value>
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="AddressExp1" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="EntrepriseExp1" class="domain.impl.Entreprise" scope="prototype">
+		<property name="firstname" value="Future Life" />
+		<property name="lastname" value="" />
+		<property name="email" value="contact@futurelife.com" />
+		<property name="address">
+			<ref bean="AddressExp2" />
+		</property>
+	</bean>
+
+	<bean id="EntrepriseExp2" parent="ContactSetter" class="domain.impl.Entreprise" scope="prototype">
+		<property name="firstname" value="Hello Mdoc" />
+		<property name="lastname" value="" />
+		<property name="email" value="contact@hellomdoc.com" />
+		<property name="address">
+			<ref bean="AddressExp3" />
+		</property>
+	</bean>
+	
+	<bean id="AddressExp1" class="domain.impl.Address" scope="prototype">
+		<property name="street" value="5 Place Jussieu" />
+		<property name="city" value="Paris" />
+		<property name="zip" value="75005" />
+		<property name="country" value="France" />
+	</bean>
+	
+	<bean id="AddressExp2" class="domain.impl.Address" scope="prototype">
+		<property name="street" value="221B Baker Street" />
+		<property name="city" value="London" />
+		<property name="zip" value="NW16XE" />
+		<property name="country" value="England" />
+	</bean>
+	
+	<bean id="AddressExp3" class="domain.impl.Address" scope="prototype">
+		<property name="street" value="29 Main Street" />
+		<property name="city" value="New York" />
+		<property name="zip" value="02138" />
+		<property name="country" value="USA" />
+	</bean>
+
+	<bean id="PhoneNumberExp1" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="home" />
+		<property name="phoneNumber" value="0189625412" />
+	</bean>
+	
+	<bean id="PhoneNumberExp2" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="office" />
+		<property name="phoneNumber" value="0165971256" />
+	</bean>
+	
+	<bean id="PhoneNumberExp3" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="mobile" />
+		<property name="phoneNumber" value="0624859715" />
+	</bean>
+	
+	<bean id="PhoneNumberExp4" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="home" />
+		<property name="phoneNumber" value="0289758038" />
+	</bean>
+	
+	<bean id="PhoneNumberExp5" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="office" />
+		<property name="phoneNumber" value="0245895924" />
+	</bean>
+	
+	<bean id="PhoneNumberExp6" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="mobile" />
+		<property name="phoneNumber" value="07489254728" />
+	</bean>
+	
+	<bean id="PhoneNumberExp7" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="home" />
+		<property name="phoneNumber" value="(914)246-8051" />
+	</bean>
+	
+	<bean id="PhoneNumberExp8" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="office" />
+		<property name="phoneNumber" value="(516)712-6528" />
+	</bean>
+	
+	<bean id="PhoneNumberExp9" class="domain.impl.PhoneNumber" scope="prototype">
+		<property name="phoneKind" value="mobile" />
+		<property name="phoneNumber" value="773-338-7786" />
+	</bean>
+</beans>
