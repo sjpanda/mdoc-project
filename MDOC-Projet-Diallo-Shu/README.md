@@ -20,7 +20,7 @@
 
 1. Make sure that you have all the frameworks/JRE/IDE/plugins above installed
 
-2. Import our project (.zip) into your eclipse (You can also import the project from the git repository : https://github.com/sjpanda/m.git)
+2. Import our project (.zip) into your eclipse (You can also import the project from the git repository : https://github.com/sjpanda/mdoc-project.git)
 
 3. Add the libraries JSF 2.1 (Mojarra) to the project : 
 	right click on the project -> Properties -> Unwrap "Project Facets" -> 
