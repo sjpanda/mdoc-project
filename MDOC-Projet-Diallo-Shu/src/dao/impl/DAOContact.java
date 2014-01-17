@@ -37,7 +37,9 @@ public class DAOContact extends HibernateDaoSupport implements IDAOContact {
 				((IEntreprise)c).setNumSiret(numSiret);
 			}
 
-			getHibernateTemplate().save(address);
+			if(address != null){
+				getHibernateTemplate().save(address);
+			}
 
 			c.setFirstname(fname);
 			c.setLastname(lname);
